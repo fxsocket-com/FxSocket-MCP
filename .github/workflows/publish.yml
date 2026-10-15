@@ -4,8 +4,9 @@ name: publish
 # Builds linux/amd64 + linux/arm64 and pushes fxsocket/mcp:1.0.0, :1.0
 # and :latest to Docker Hub.
 #
-# Needs two repository secrets: DOCKERHUB_USERNAME and DOCKERHUB_TOKEN
-# (a Docker Hub access token with read & write on the fxsocket namespace).
+# Needs two repository secrets: DOCKERHUB_USERNAME and DOCKERHUB_TOKEN, a
+# Docker Hub access token. Read & Write is enough to push; the
+# dockerhub-overview workflow shares it and needs Read, Write & Delete.
 on:
   push:
     tags:

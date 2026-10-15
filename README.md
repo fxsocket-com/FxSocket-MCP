@@ -147,7 +147,8 @@ they cover the real stdio and HTTP paths.
 To release, bump `__version__` in `fxsocket_mcp.py`, then push a matching
 tag (`git tag v1.0.1 && git push --tags`). The `publish` workflow builds
 `linux/amd64` and `linux/arm64` and pushes `fxsocket/mcp:<version>`,
-`:<major>.<minor>` and `:latest`.
+`:<major>.<minor>` and `:latest`, and the `dockerhub-overview` workflow
+copies this README to the Docker Hub page.
 
 ## License
 

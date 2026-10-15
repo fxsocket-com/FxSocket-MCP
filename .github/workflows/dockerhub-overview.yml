@@ -1,0 +1,28 @@
+name: dockerhub-overview
+
+# Copies README.md to the Docker Hub page of fxsocket/mcp (Overview tab
+# and short description) on every release tag. Run it by hand from the
+# Actions tab to sync without a release.
+#
+# Uses the same DOCKERHUB_USERNAME / DOCKERHUB_TOKEN secrets as publish,
+# but editing the page needs a token with Read, Write & Delete scope.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch: {}
+
+jobs:
+  overview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: peter-evans/dockerhub-description@v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: fxsocket/mcp
+          short-description: "Read-only MetaTrader 4/5 MCP server by FxSocket, for Claude, Cursor and VS Code."
+          readme-filepath: ./README.md
+          # Turns README links like (LICENSE) into GitHub URLs.
+          enable-url-completion: true
