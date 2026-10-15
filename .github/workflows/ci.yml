@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m unittest discover -s tests -v
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build
+        run: docker build -t fxsocket-mcp:ci .
+      - name: Smoke test
+        run: |
+          test "$(docker run --rm fxsocket-mcp:ci --version)" = "$(python3 fxsocket_mcp.py --version)"
+          # Without a key it must exit 1 with instructions, not hang.
+          if docker run -i --rm fxsocket-mcp:ci </dev/null 2>err.txt; then exit 1; fi
+          grep -q "FXSOCKET_API_KEY is not set" err.txt

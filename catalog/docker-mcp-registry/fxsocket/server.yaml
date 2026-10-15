@@ -1,0 +1,29 @@
+# Draft entry for https://github.com/docker/mcp-registry (servers/fxsocket/).
+# Fill in source.commit with the released commit before opening the PR.
+name: fxsocket
+image: fxsocket/mcp
+type: server
+meta:
+  category: finance
+  tags:
+    - finance
+    - trading
+    - metatrader
+    - forex
+about:
+  title: FxSocket
+  description: Read-only access to your MetaTrader 4 and 5 accounts on FxSocket. Balances, open positions, closed trades with win rate and P/L, quotes, symbol specifications and price history. It cannot place, modify or close orders.
+  icon: https://fxsocket.com/apple-touch-icon.png
+source:
+  project: https://github.com/fxsocket-com/FxSocket-MCP
+  commit: TODO
+run:
+  allowHosts:
+    - mcp.fxsocket.com:443
+config:
+  description: Connect with an FxSocket API key. A read-only key (fxs_ro_...) is enough, and a scoped one limits the agent to the accounts you choose.
+  secrets:
+    - name: fxsocket.api_key
+      env: FXSOCKET_API_KEY
+      example: fxs_ro_xxxxxxxxxxxxxxxx
+      description: Create a read-only key at https://app.fxsocket.com/dashboard/api-key

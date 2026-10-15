@@ -1,0 +1,53 @@
+name: publish
+
+# Push a version tag to release, e.g.  git tag v1.0.0 && git push --tags
+# Builds linux/amd64 + linux/arm64 and pushes fxsocket/mcp:1.0.0, :1.0
+# and :latest to Docker Hub.
+#
+# Needs two repository secrets: DOCKERHUB_USERNAME and DOCKERHUB_TOKEN
+# (a Docker Hub access token with read & write on the fxsocket namespace).
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - run: python -m unittest discover -s tests
+      - name: Tag matches __version__
+        run: test "${GITHUB_REF_NAME#v}" = "$(python fxsocket_mcp.py --version)"
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: fxsocket/mcp
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          provenance: mode=max
+          sbom: true

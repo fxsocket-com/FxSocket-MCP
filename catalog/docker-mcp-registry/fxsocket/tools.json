@@ -1,0 +1,173 @@
+[
+  {
+    "name": "list_accounts",
+    "description": "Every MT4/MT5 account linked to this API key: id, nickname, platform, broker server, login and connection status (connected / connecting / disconnected / error). Call this first: the other tools take its account_id values. Set include_balances to also read each account's live balance, equity and floating profit, plus totals per currency.",
+    "arguments": [
+      {
+        "name": "include_balances",
+        "type": "boolean",
+        "desc": "Also read live balance and equity from every connected account (slower).",
+        "optional": true
+      }
+    ]
+  },
+  {
+    "name": "get_account",
+    "description": "One account in full: live financials (balance, equity, margin, free margin, margin level, leverage, currency), account settings (margin mode, stop-out level, whether trading is allowed) and terminal health (broker connection, login state).",
+    "arguments": [
+      {
+        "name": "account_id",
+        "type": "string",
+        "desc": "An account_id from list_accounts."
+      }
+    ]
+  },
+  {
+    "name": "get_open_positions",
+    "description": "Open positions and pending orders on one or more accounts, newest first, with per-account counts, floating profit and swap, and totals per currency. Lists at most 300 orders across all accounts; counts and totals always cover everything.",
+    "arguments": [
+      {
+        "name": "account_ids",
+        "type": "array",
+        "desc": "Account ids from list_accounts. Omit to read every account this key can see.",
+        "optional": true
+      },
+      {
+        "name": "symbol",
+        "type": "string",
+        "desc": "Only this instrument. Matches broker suffixes too, so EURUSD also matches EURUSD.sd and EURUSDm.",
+        "optional": true
+      },
+      {
+        "name": "kind",
+        "type": "string",
+        "desc": "position = filled trades, pending = resting limit/stop orders.",
+        "optional": true
+      }
+    ]
+  },
+  {
+    "name": "get_trade_history",
+    "description": "Closed positions (one row per round trip) on one or more accounts, with per-account stats: trade count, wins, losses, win rate, net profit after commission and swap, best and worst trade, and a per-symbol breakdown. Defaults to the last 7 days; the window can be up to 366 days. Lists at most 300 trades across all accounts, newest first; the stats always cover the whole window.",
+    "arguments": [
+      {
+        "name": "account_ids",
+        "type": "array",
+        "desc": "Account ids from list_accounts. Omit to read every account this key can see.",
+        "optional": true
+      },
+      {
+        "name": "from",
+        "type": "string",
+        "desc": "Start of the window. Date (YYYY-MM-DD) or ISO-8601 datetime, in the broker's server time.",
+        "optional": true
+      },
+      {
+        "name": "to",
+        "type": "string",
+        "desc": "End of the window (a bare date includes that whole day). Defaults to now. Date (YYYY-MM-DD) or ISO-8601 datetime, in the broker's server time.",
+        "optional": true
+      },
+      {
+        "name": "symbol",
+        "type": "string",
+        "desc": "Only this instrument. Matches broker suffixes too, so EURUSD also matches EURUSD.sd and EURUSDm.",
+        "optional": true
+      }
+    ]
+  },
+  {
+    "name": "search_symbols",
+    "description": "Find the exact symbol names an account's broker uses. Brokers spell instruments differently (EURUSD, EURUSD.sd, EURUSDm, XAUUSD.r), so look a name up here before calling get_quotes, get_symbol_info or get_price_history.",
+    "arguments": [
+      {
+        "name": "account_id",
+        "type": "string",
+        "desc": "An account_id from list_accounts."
+      },
+      {
+        "name": "query",
+        "type": "string",
+        "desc": "Case-insensitive substring, e.g. EUR or XAU. Omit to list all.",
+        "optional": true
+      },
+      {
+        "name": "limit",
+        "type": "integer",
+        "desc": "",
+        "optional": true
+      }
+    ]
+  },
+  {
+    "name": "get_quotes",
+    "description": "Latest bid, ask and spread for up to 20 symbols, as this account's broker prices them.",
+    "arguments": [
+      {
+        "name": "account_id",
+        "type": "string",
+        "desc": "An account_id from list_accounts."
+      },
+      {
+        "name": "symbols",
+        "type": "array",
+        "desc": "Exact broker symbol names (see search_symbols)."
+      }
+    ]
+  },
+  {
+    "name": "get_symbol_info",
+    "description": "Contract specification for one symbol at this account's broker: digits, contract size, tick size and value, minimum/maximum/step volume, stops level, current spread, swap rates, commissions and trading sessions.",
+    "arguments": [
+      {
+        "name": "account_id",
+        "type": "string",
+        "desc": "An account_id from list_accounts."
+      },
+      {
+        "name": "symbol",
+        "type": "string",
+        "desc": "Exact broker symbol name (see search_symbols)."
+      }
+    ]
+  },
+  {
+    "name": "get_price_history",
+    "description": "OHLC candles for one symbol from this account's broker. Returns the most recent `limit` bars (default 100, max 500) in the window; omit from/to for the latest bars. M2, M3, H2, H6, H8 and H12 exist on MT5 only.",
+    "arguments": [
+      {
+        "name": "account_id",
+        "type": "string",
+        "desc": "An account_id from list_accounts."
+      },
+      {
+        "name": "symbol",
+        "type": "string",
+        "desc": "Exact broker symbol name (see search_symbols)."
+      },
+      {
+        "name": "timeframe",
+        "type": "string",
+        "desc": ""
+      },
+      {
+        "name": "from",
+        "type": "string",
+        "desc": "Start of the window. Date (YYYY-MM-DD) or ISO-8601 datetime, in the broker's server time.",
+        "optional": true
+      },
+      {
+        "name": "to",
+        "type": "string",
+        "desc": "End of the window. Defaults to now. Date (YYYY-MM-DD) or ISO-8601 datetime, in the broker's server time.",
+        "optional": true
+      },
+      {
+        "name": "limit",
+        "type": "integer",
+        "desc": "",
+        "optional": true
+      }
+    ]
+  }
+]
