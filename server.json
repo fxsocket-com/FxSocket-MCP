@@ -1,0 +1,52 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.fxsocket/mcp",
+  "title": "FxSocket",
+  "description": "Read-only MetaTrader 4 and 5 accounts: balances, positions, trade history, quotes and candles.",
+  "version": "1.0.1",
+  "websiteUrl": "https://fxsocket.com/docs/mcp",
+  "repository": {
+    "url": "https://github.com/fxsocket-com/FxSocket-MCP",
+    "source": "github"
+  },
+  "icons": [
+    {
+      "src": "https://fxsocket.com/apple-touch-icon.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "180x180"
+      ]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.fxsocket.com/mcp",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "description": "FxSocket API key. A read-only key (fxs_ro_...) is enough: https://app.fxsocket.com/dashboard/api-key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "docker.io/fxsocket/mcp:1.0.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "FXSOCKET_API_KEY",
+          "description": "FxSocket API key. A read-only key (fxs_ro_...) is enough: https://app.fxsocket.com/dashboard/api-key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
