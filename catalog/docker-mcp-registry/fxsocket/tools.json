@@ -1,19 +1,19 @@
 [
   {
     "name": "list_accounts",
-    "description": "Every MT4/MT5 account linked to this API key: id, nickname, platform, broker server, login and connection status (connected / connecting / disconnected / error). Call this first: the other tools take its account_id values. Set include_balances to also read each account's live balance, equity and floating profit, plus totals per currency. For one account's margin, leverage and settings, use get_account instead.",
+    "description": "Every MT4/MT5 account linked to this API key: id, nickname, platform, broker server, login and connection status (connected / connecting / disconnected / error). Call this first: the other tools take its account_id values. Set include_balances to also read each account's live balance, equity and floating profit from its terminal, plus totals per currency; that reads at most 50 accounts, and one that cannot be read gets a balance_error instead of failing the call. For one account's margin, leverage and settings, use get_account instead.",
     "arguments": [
       {
         "name": "include_balances",
         "type": "boolean",
-        "desc": "Also read live balance and equity from every connected account (slower).",
+        "desc": "Also read live balance, equity and floating profit from each account's terminal (one extra read per account, so slower).",
         "optional": true
       }
     ]
   },
   {
     "name": "get_account",
-    "description": "One account in full: live financials (balance, equity, margin, free margin, margin level, leverage, currency), account settings (margin mode, stop-out level, whether trading is allowed) and terminal health (broker connection, login state). For balance and equity across several accounts at once, use list_accounts with include_balances; for positions, use get_open_positions.",
+    "description": "One account in full, read live from its terminal: financials (balance, equity, margin, free margin, margin level, leverage, currency), account settings (margin mode, stop-out level, whether trading is allowed) and terminal health (broker connection, login state). Takes one account_id from list_accounts; if part of the read fails, the rest is still returned and the failure is listed under errors. For balance and equity across several accounts at once, use list_accounts with include_balances; for positions, use get_open_positions.",
     "arguments": [
       {
         "name": "account_id",
@@ -24,7 +24,7 @@
   },
   {
     "name": "get_open_positions",
-    "description": "Open positions and pending orders on one or more accounts, newest first, with per-account counts, floating profit and swap, and totals per currency. Lists at most 300 orders across all accounts; counts and totals always cover everything. Only what is open now: for closed trades, win rate or realised profit, use get_trade_history.",
+    "description": "Open positions and pending orders on one or more accounts, newest first, with per-account counts, floating profit and swap, and totals per currency. Lists at most 300 orders across all accounts; counts and totals always cover everything. Narrow it with symbol (EURUSD also matches EURUSD.sd) and kind (position or pending); omit account_ids to read every account. Only what is open now: for closed trades, win rate or realised profit, use get_trade_history.",
     "arguments": [
       {
         "name": "account_ids",
@@ -78,7 +78,7 @@
   },
   {
     "name": "search_symbols",
-    "description": "Find the exact symbol names an account's broker uses. Brokers spell instruments differently (EURUSD, EURUSD.sd, EURUSDm, XAUUSD.r), so look a name up here before calling get_quotes, get_symbol_info or get_price_history. Returns names only; one symbol's contract details come from get_symbol_info.",
+    "description": "Find the exact symbol names an account's broker uses, by case-insensitive substring. Brokers spell instruments differently (EURUSD, EURUSD.sd, EURUSDm, XAUUSD.r), so look a name up here before calling get_quotes, get_symbol_info or get_price_history. Returns up to limit names (default 100) with how many matched and whether the list was cut; names only, one symbol's contract details come from get_symbol_info.",
     "arguments": [
       {
         "name": "account_id",
@@ -94,14 +94,14 @@
       {
         "name": "limit",
         "type": "integer",
-        "desc": "",
+        "desc": "Most names to return; truncated says whether more matched.",
         "optional": true
       }
     ]
   },
   {
     "name": "get_quotes",
-    "description": "Latest bid, ask and spread for up to 20 symbols, as this account's broker prices them. The current price only: for past prices use get_price_history, for contract size, swaps or sessions use get_symbol_info.",
+    "description": "Latest bid, ask and spread for up to 20 symbols, read live from this account's terminal, so prices are the broker's own. A symbol the broker does not know is listed under errors while the others still return; if none resolve, the call fails. The current price only: for past prices use get_price_history, for contract size, swaps or sessions use get_symbol_info.",
     "arguments": [
       {
         "name": "account_id",
@@ -117,7 +117,7 @@
   },
   {
     "name": "get_symbol_info",
-    "description": "Contract specification for one symbol at this account's broker: digits, contract size, tick size and value, minimum/maximum/step volume, stops level, current spread, swap rates, commissions and trading sessions. For just the live bid and ask of several symbols, get_quotes is lighter.",
+    "description": "Contract specification for one symbol at this account's broker, read live from its terminal: digits, contract size, tick size and value, minimum/maximum/step volume, stops level, current spread, swap rates, commissions and trading sessions. symbol must be the broker's exact name, so look it up with search_symbols first; an unknown symbol fails the call with the terminal's reason. For just the live bid and ask of several symbols, get_quotes is lighter.",
     "arguments": [
       {
         "name": "account_id",
@@ -133,7 +133,7 @@
   },
   {
     "name": "get_price_history",
-    "description": "OHLC candles for one symbol from this account's broker. Returns the most recent `limit` bars (default 100, max 500) in the window; omit from/to for the latest bars. For the current price only, use get_quotes.",
+    "description": "OHLC candles for one symbol from this account's broker. Returns the most recent `limit` bars (default 100, max 500) in the window; omit from/to for the latest bars. A window spanning more than 20000 bars is refused (narrow it or pick a larger timeframe), as are MT5-only timeframes on MT4 accounts. For the current price only, use get_quotes.",
     "arguments": [
       {
         "name": "account_id",
