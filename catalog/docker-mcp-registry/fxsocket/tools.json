@@ -1,7 +1,7 @@
 [
   {
     "name": "list_accounts",
-    "description": "Every MT4/MT5 account linked to this API key: id, nickname, platform, broker server, login and connection status (connected / connecting / disconnected / error). Call this first: the other tools take its account_id values. Set include_balances to also read each account's live balance, equity and floating profit, plus totals per currency.",
+    "description": "Every MT4/MT5 account linked to this API key: id, nickname, platform, broker server, login and connection status (connected / connecting / disconnected / error). Call this first: the other tools take its account_id values. Set include_balances to also read each account's live balance, equity and floating profit, plus totals per currency. For one account's margin, leverage and settings, use get_account instead.",
     "arguments": [
       {
         "name": "include_balances",
@@ -13,7 +13,7 @@
   },
   {
     "name": "get_account",
-    "description": "One account in full: live financials (balance, equity, margin, free margin, margin level, leverage, currency), account settings (margin mode, stop-out level, whether trading is allowed) and terminal health (broker connection, login state).",
+    "description": "One account in full: live financials (balance, equity, margin, free margin, margin level, leverage, currency), account settings (margin mode, stop-out level, whether trading is allowed) and terminal health (broker connection, login state). For balance and equity across several accounts at once, use list_accounts with include_balances; for positions, use get_open_positions.",
     "arguments": [
       {
         "name": "account_id",
@@ -24,7 +24,7 @@
   },
   {
     "name": "get_open_positions",
-    "description": "Open positions and pending orders on one or more accounts, newest first, with per-account counts, floating profit and swap, and totals per currency. Lists at most 300 orders across all accounts; counts and totals always cover everything.",
+    "description": "Open positions and pending orders on one or more accounts, newest first, with per-account counts, floating profit and swap, and totals per currency. Lists at most 300 orders across all accounts; counts and totals always cover everything. Only what is open now: for closed trades, win rate or realised profit, use get_trade_history.",
     "arguments": [
       {
         "name": "account_ids",
@@ -48,7 +48,7 @@
   },
   {
     "name": "get_trade_history",
-    "description": "Closed positions (one row per round trip) on one or more accounts, with per-account stats: trade count, wins, losses, win rate, net profit after commission and swap, best and worst trade, and a per-symbol breakdown. Defaults to the last 7 days; the window can be up to 366 days. Lists at most 300 trades across all accounts, newest first; the stats always cover the whole window.",
+    "description": "Closed positions (one row per round trip) on one or more accounts, with per-account stats: trade count, wins, losses, win rate, net profit after commission and swap, best and worst trade, and a per-symbol breakdown. Defaults to the last 7 days; the window can be up to 366 days. Lists at most 300 trades across all accounts, newest first; the stats always cover the whole window. For positions that are still open, use get_open_positions.",
     "arguments": [
       {
         "name": "account_ids",
@@ -78,7 +78,7 @@
   },
   {
     "name": "search_symbols",
-    "description": "Find the exact symbol names an account's broker uses. Brokers spell instruments differently (EURUSD, EURUSD.sd, EURUSDm, XAUUSD.r), so look a name up here before calling get_quotes, get_symbol_info or get_price_history.",
+    "description": "Find the exact symbol names an account's broker uses. Brokers spell instruments differently (EURUSD, EURUSD.sd, EURUSDm, XAUUSD.r), so look a name up here before calling get_quotes, get_symbol_info or get_price_history. Returns names only; one symbol's contract details come from get_symbol_info.",
     "arguments": [
       {
         "name": "account_id",
@@ -101,7 +101,7 @@
   },
   {
     "name": "get_quotes",
-    "description": "Latest bid, ask and spread for up to 20 symbols, as this account's broker prices them.",
+    "description": "Latest bid, ask and spread for up to 20 symbols, as this account's broker prices them. The current price only: for past prices use get_price_history, for contract size, swaps or sessions use get_symbol_info.",
     "arguments": [
       {
         "name": "account_id",
@@ -117,7 +117,7 @@
   },
   {
     "name": "get_symbol_info",
-    "description": "Contract specification for one symbol at this account's broker: digits, contract size, tick size and value, minimum/maximum/step volume, stops level, current spread, swap rates, commissions and trading sessions.",
+    "description": "Contract specification for one symbol at this account's broker: digits, contract size, tick size and value, minimum/maximum/step volume, stops level, current spread, swap rates, commissions and trading sessions. For just the live bid and ask of several symbols, get_quotes is lighter.",
     "arguments": [
       {
         "name": "account_id",
@@ -133,7 +133,7 @@
   },
   {
     "name": "get_price_history",
-    "description": "OHLC candles for one symbol from this account's broker. Returns the most recent `limit` bars (default 100, max 500) in the window; omit from/to for the latest bars. M2, M3, H2, H6, H8 and H12 exist on MT5 only.",
+    "description": "OHLC candles for one symbol from this account's broker. Returns the most recent `limit` bars (default 100, max 500) in the window; omit from/to for the latest bars. For the current price only, use get_quotes.",
     "arguments": [
       {
         "name": "account_id",
@@ -148,7 +148,7 @@
       {
         "name": "timeframe",
         "type": "string",
-        "desc": ""
+        "desc": "Bar size, M1 to MN1. M2, M3, H2, H6, H8 and H12 exist on MT5 only."
       },
       {
         "name": "from",
