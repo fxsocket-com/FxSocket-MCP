@@ -39,6 +39,12 @@ class StubServer(BaseHTTPRequestHandler):
     answer slowly, stream, or fail."""
 
     requests = []  # (headers, body) of every POST, for assertions
+    card = None  # served at /.well-known/mcp/server-card.json when set
+
+    def do_GET(self):
+        if self.path == "/.well-known/mcp/server-card.json" and type(self).card is not None:
+            return self._json(200, type(self).card)
+        return self._send(404, b"not found", "text/plain")
 
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
@@ -201,6 +207,12 @@ class RelayTests(unittest.TestCase):
 
     def setUp(self):
         StubServer.requests.clear()
+        StubServer.card = {
+            "serverInfo": {"name": "stub", "title": "Stub", "version": "9.9.9", "description": "x"},
+            "authentication": {"required": True, "schemes": ["apiKey"]},
+            "instructions": "Call list_things first.",
+            "tools": [{"name": "list_things", "description": "d", "inputSchema": {"type": "object"}}],
+        }
 
     def relay(self, **kwargs):
         relay = RelayProcess(self.url, **kwargs)
@@ -276,6 +288,27 @@ class RelayTests(unittest.TestCase):
         self.assertEqual(reply["id"], "a")
         self.assertIn("rejected the API key", reply["error"]["message"])
         self.assertIn("Invalid API key.", reply["error"]["message"])
+
+    def test_rejected_key_still_lists_tools_from_the_card(self):
+        relay = self.relay(key="fxs_ro_placeholder")
+        relay.send({"jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2025-06-18", "capabilities": {}}})
+        init = relay.read()["result"]
+        self.assertEqual(init["protocolVersion"], "2025-06-18")
+        self.assertEqual(init["serverInfo"], {"name": "stub", "title": "Stub", "version": "9.9.9"})
+        self.assertEqual(init["instructions"], "Call list_things first.")
+        relay.send({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
+        self.assertEqual([t["name"] for t in relay.read()["result"]["tools"]], ["list_things"])
+        # The card answers discovery only: a tool call still needs a key.
+        relay.send(call(3, "echo", modern=False))
+        self.assertIn("rejected the API key", relay.read()["error"]["message"])
+
+    def test_rejected_key_without_a_card_is_reported(self):
+        StubServer.card = None
+        relay = self.relay(key="fxs_ro_placeholder")
+        relay.send({"jsonrpc": "2.0", "id": 1, "method": "initialize",
+                    "params": {"protocolVersion": "2025-06-18", "capabilities": {}}})
+        self.assertIn("rejected the API key", relay.read()["error"]["message"])
 
     def test_rate_limit_says_when_to_retry(self):
         relay = self.relay()

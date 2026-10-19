@@ -3,7 +3,7 @@
   "name": "com.fxsocket/mcp",
   "title": "FxSocket",
   "description": "Read-only MetaTrader 4 and 5 accounts: balances, positions, trade history, quotes and candles.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "websiteUrl": "https://fxsocket.com/docs/mcp",
   "repository": {
     "url": "https://github.com/fxsocket-com/FxSocket-MCP",
@@ -35,7 +35,7 @@
   "packages": [
     {
       "registryType": "oci",
-      "identifier": "docker.io/fxsocket/mcp:1.0.1",
+      "identifier": "docker.io/fxsocket/mcp:1.0.2",
       "transport": {
         "type": "stdio"
       },

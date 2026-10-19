@@ -129,6 +129,13 @@ writes the replies to stdout. It handles both protocol eras:
 - **2025-03-26 to 2025-11-25:** the client opens with `initialize`, and the
   relay sends the negotiated version as `MCP-Protocol-Version` from then on.
 
+If FxSocket rejects the key, the relay still answers `initialize` and
+`tools/list` from the server's public card
+(`https://mcp.fxsocket.com/.well-known/mcp/server-card.json`), so
+directories and inspectors that start it with a placeholder key can see
+the tools. Every tool call still needs a valid key and otherwise returns
+the rejection.
+
 Requests run concurrently. A `notifications/cancelled` from the client
 closes that request's connection, which is how Streamable HTTP cancels.
 HTTP failures (bad key, rate limit, network) come back as JSON-RPC errors

@@ -16,6 +16,12 @@ Both protocol eras pass through: 2026-07-28 requests (protocol version in
 2025-11-25 sessions (``initialize`` first, then the negotiated version in
 a header).
 
+If FxSocket rejects the key, ``initialize`` and ``tools/list`` are
+answered from the server's public card
+(``/.well-known/mcp/server-card.json``), so directories that start the
+server with a dummy key can still see its tools. Tool calls always need a
+valid key.
+
 Standard library only. Configured through the environment:
 
     FXSOCKET_API_KEY      required; a read-only key (fxs_ro_...) is enough
@@ -40,10 +46,11 @@ import ssl
 import sys
 import threading
 import time
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlsplit
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 DEFAULT_URL = "https://mcp.fxsocket.com/mcp"
 DEFAULT_TIMEOUT = 120.0
@@ -56,6 +63,13 @@ WORKERS = 8
 USER_AGENT = f"fxsocket-mcp/{__version__} (+https://github.com/fxsocket-com/FxSocket-MCP)"
 
 META_VERSION = "io.modelcontextprotocol/protocolVersion"
+#: Where the server publishes its card, relative to the URL's origin.
+CARD_PATH = "/.well-known/mcp/server-card.json"
+#: What the card can answer when the key is rejected: discovery only.
+CARD_METHODS = ("initialize", "tools/list")
+#: The protocol versions an ``initialize`` from the card may agree to.
+CARD_VERSIONS = ("2025-11-25", "2025-06-18", "2025-03-26")
+
 #: Methods whose target goes into the ``Mcp-Name`` header, by param.
 NAME_PARAMS = {"tools/call": "name", "prompts/get": "name", "resources/read": "uri"}
 #: RFC 9110 token, the allowed shape of an ``x-mcp-header`` name.
@@ -162,6 +176,7 @@ class Upstream:
         self.port = parts.port
         self.path = (parts.path or "/") + (f"?{parts.query}" if parts.query else "")
         self.timeout = timeout
+        self.card_url = f"{parts.scheme}://{parts.netloc}{CARD_PATH}"
         self._context = ssl.create_default_context() if self.secure else None
         self._local = threading.local()
 
@@ -176,6 +191,17 @@ class Upstream:
                 conn = http.client.HTTPConnection(self.host, self.port, timeout=self.timeout)
             self._local.conn = conn
         return conn
+
+    def card(self) -> dict | None:
+        """The server's public card, or None if it cannot be read."""
+        request = urllib.request.Request(self.card_url, headers={"User-Agent": USER_AGENT})
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout, context=self._context) as resp:
+                card = json.loads(resp.read())
+        except (OSError, ValueError) as exc:
+            log.warning("could not read the server card at %s: %s", self.card_url, _reason(exc))
+            return None
+        return card if isinstance(card, dict) and isinstance(card.get("tools"), list) else None
 
     def drop(self) -> None:
         """Forget this thread's connection, after an error or a cancel
@@ -285,6 +311,9 @@ class Relay:
         self._session_id = None
         #: Tool name -> ``x-mcp-header`` params, learned from tools/list.
         self._header_params = {}
+        #: The public card, read once the first time the key is rejected.
+        self._card = None
+        self._card_logged = set()
 
     # Entry point, called on the reading thread for every stdin line.
 
@@ -410,9 +439,19 @@ class Relay:
             if entry is not None and entry.cancelled:
                 self.upstream.drop()
             elif is_request and not replied:
-                emit(_error(msg_id, INTERNAL_ERROR, self._failure(status, detail, resp)))
+                result = self._from_card(method, message) if status == 401 else None
+                if result is not None:
+                    self._learn(method, result)
+                    emit({"jsonrpc": "2.0", "id": msg_id, "result": result})
+                else:
+                    emit(_error(msg_id, INTERNAL_ERROR, self._failure(status, detail, resp)))
             elif not is_request and status >= 400:
-                log.warning("%s: %s", method or "message", self._failure(status, detail, resp))
+                # Once the card stood in for a rejected key, the same 401 on
+                # every notification is noise.
+                quiet = status == 401 and self._card is not None
+                (log.debug if quiet else log.warning)(
+                    "%s: %s", method or "message", self._failure(status, detail, resp),
+                )
         except ValueError as exc:
             # http.client refuses header values with control characters.
             self.upstream.drop()
@@ -433,6 +472,41 @@ class Relay:
                 "%s id=%r -> %s in %d ms",
                 method or "response", msg_id, status, (time.monotonic() - started) * 1000,
             )
+
+    def _from_card(self, method, message: dict) -> dict | None:
+        """Answer a discovery request from the public card after the key
+        was rejected, so the tools can be listed without one. Only the
+        handshake-era methods: a 2026-07-28 client falls back to
+        ``initialize`` when ``server/discover`` fails."""
+        if method not in CARD_METHODS or _is_modern(message):
+            return None
+        with self._lock:
+            card = self._card
+        if card is None:
+            card = self.upstream.card()
+            if card is None:
+                return None
+            with self._lock:
+                self._card = card
+        if method not in self._card_logged:
+            self._card_logged.add(method)
+            log.warning(
+                "FxSocket rejected the API key; answering %s from the public server card. "
+                "Tool calls need a valid FXSOCKET_API_KEY.", method,
+            )
+        if method == "tools/list":
+            return {"tools": card["tools"]}
+        params = message.get("params") if isinstance(message.get("params"), dict) else {}
+        requested = params.get("protocolVersion")
+        info = card.get("serverInfo") if isinstance(card.get("serverInfo"), dict) else {}
+        result = {
+            "protocolVersion": requested if requested in CARD_VERSIONS else CARD_VERSIONS[0],
+            "capabilities": {"tools": {"listChanged": False}},
+            "serverInfo": {k: info[k] for k in ("name", "title", "version") if k in info},
+        }
+        if isinstance(card.get("instructions"), str):
+            result["instructions"] = card["instructions"]
+        return result
 
     def _untrack(self, key) -> None:
         with self._lock:
