@@ -133,7 +133,7 @@
   },
   {
     "name": "get_price_history",
-    "description": "OHLC candles for one symbol from this account's broker. Returns the most recent `limit` bars (default 100, max 500) in the window; omit from/to for the latest bars. A window spanning more than 20000 bars is refused (narrow it or pick a larger timeframe), as are MT5-only timeframes on MT4 accounts. For the current price only, use get_quotes.",
+    "description": "OHLC candles for one symbol from this account's broker. Returns the most recent `limit` bars (default 100, max 500) in the window; omit from/to for the latest bars. A window spanning more than 20000 bars is refused (narrow it or pick a larger timeframe). For the current price only, use get_quotes.",
     "arguments": [
       {
         "name": "account_id",
@@ -148,7 +148,7 @@
       {
         "name": "timeframe",
         "type": "string",
-        "desc": "Bar size, M1 to MN1. M2, M3, H2, H6, H8 and H12 exist on MT5 only."
+        "desc": "Bar size, M1 to MN1. The same nine on MT4 and MT5."
       },
       {
         "name": "from",
