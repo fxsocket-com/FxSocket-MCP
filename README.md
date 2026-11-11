@@ -4,8 +4,8 @@
 [![CI](https://github.com/fxsocket-com/FxSocket-MCP/actions/workflows/ci.yml/badge.svg)](https://github.com/fxsocket-com/FxSocket-MCP/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Lets Claude, Cursor, VS Code and other MCP clients read your MetaTrader 4
-and 5 accounts on [FxSocket](https://fxsocket.com): balances, open
+Lets Claude, Cursor, VS Code and other MCP clients read your MetaTrader 4,
+MetaTrader 5 and cTrader accounts on [FxSocket](https://fxsocket.com): balances, open
 positions, closed trades with win rate and P/L, quotes, symbol
 specifications and price history. **It is read-only.** It cannot place,
 modify or close orders.

@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.fxsocket/mcp",
   "title": "FxSocket",
-  "description": "Read-only MetaTrader 4 and 5 accounts: balances, positions, trade history, quotes and candles.",
+  "description": "Read-only MT4, MT5 and cTrader accounts: balances, positions, trade history, quotes and candles.",
   "version": "1.0.2",
   "websiteUrl": "https://fxsocket.com/docs/mcp",
   "repository": {

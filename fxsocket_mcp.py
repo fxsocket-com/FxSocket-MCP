@@ -7,8 +7,8 @@ JSON-RPC over stdin and stdout. This relays every message to
 https://mcp.fxsocket.com/mcp as a Streamable HTTP POST carrying your API
 key, and writes the server's replies back to stdout.
 
-The tools themselves run on FxSocket, against the MT4/MT5 terminals
-there. None of them are defined in this file, so the relay keeps working
+The tools themselves run on FxSocket, against the MT4 and MT5 terminals
+and the cTrader bridge there. None of them are defined in this file, so the relay keeps working
 unchanged when tools are added or changed.
 
 Both protocol eras pass through: 2026-07-28 requests (protocol version in

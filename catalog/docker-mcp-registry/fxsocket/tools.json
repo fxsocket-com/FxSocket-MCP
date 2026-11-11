@@ -1,7 +1,7 @@
 [
   {
     "name": "list_accounts",
-    "description": "Every MT4/MT5 account linked to this API key: id, nickname, platform, broker server, login and connection status (connected / connecting / disconnected / error). Call this first: the other tools take its account_id values. Set include_balances to also read each account's live balance, equity and floating profit from its terminal, plus totals per currency; that reads at most 50 accounts, and one that cannot be read gets a balance_error instead of failing the call. For one account's margin, leverage and settings, use get_account instead.",
+    "description": "Every MT4, MT5 and cTrader account linked to this API key: id, nickname, platform, broker server, login and connection status (connected / connecting / disconnected / error). Call this first: the other tools take its account_id values. Set include_balances to also read each account's live balance, equity and floating profit from its terminal, plus totals per currency; that reads at most 50 accounts, and one that cannot be read gets a balance_error instead of failing the call. For one account's margin, leverage and settings, use get_account instead.",
     "arguments": [
       {
         "name": "include_balances",
@@ -148,7 +148,7 @@
       {
         "name": "timeframe",
         "type": "string",
-        "desc": "Bar size, M1 to MN1. The same nine on MT4 and MT5."
+        "desc": "Bar size, M1 to MN1. The same nine on MT4, MT5 and cTrader."
       },
       {
         "name": "from",

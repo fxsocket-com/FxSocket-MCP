@@ -9,10 +9,11 @@ meta:
     - finance
     - trading
     - metatrader
+    - ctrader
     - forex
 about:
   title: FxSocket
-  description: Read-only access to your MetaTrader 4 and 5 accounts on FxSocket. Balances, open positions, closed trades with win rate and P/L, quotes, symbol specifications and price history. It cannot place, modify or close orders.
+  description: Read-only access to your MetaTrader 4, MetaTrader 5 and cTrader accounts on FxSocket. Balances, open positions, closed trades with win rate and P/L, quotes, symbol specifications and price history. It cannot place, modify or close orders.
   icon: https://fxsocket.com/apple-touch-icon.png
 source:
   project: https://github.com/fxsocket-com/FxSocket-MCP
