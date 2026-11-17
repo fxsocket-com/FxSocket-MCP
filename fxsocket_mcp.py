@@ -50,7 +50,7 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlsplit
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 DEFAULT_URL = "https://mcp.fxsocket.com/mcp"
 DEFAULT_TIMEOUT = 120.0

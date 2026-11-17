@@ -4,7 +4,7 @@
 [![CI](https://github.com/fxsocket-com/FxSocket-MCP/actions/workflows/ci.yml/badge.svg)](https://github.com/fxsocket-com/FxSocket-MCP/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Lets Claude, Cursor, VS Code and other MCP clients read your MetaTrader 4,
+Lets Claude, Gemini CLI, Cursor, VS Code and other MCP clients read your MetaTrader 4,
 MetaTrader 5 and cTrader accounts on [FxSocket](https://fxsocket.com): balances, open
 positions, closed trades with win rate and P/L, quotes, symbol
 specifications and price history. **It is read-only.** It cannot place,
@@ -19,7 +19,8 @@ image stays tiny and never needs updating when tools change.
 
 If your client takes a remote server URL plus a header, you can skip the
 image: point it at `https://mcp.fxsocket.com/mcp` with your key in an
-`X-API-Key` header.
+`X-API-Key` header. The Claude Code plugin and the Gemini CLI extension
+below do exactly that.
 
 ## 1. Get an API key
 
@@ -29,6 +30,24 @@ A named key scoped to some of your accounts limits the agent to exactly
 those. A full `fxs_live_...` key works too, but an agent has no use for one.
 
 ## 2. Add it to your client
+
+**Claude Code plugin** (asks for the key once and keeps it in your system
+keychain, no Docker needed):
+
+```
+/plugin install fxsocket --marketplace fxsocket-com/FxSocket-MCP
+```
+
+On Claude Code before 2.1.275, add the marketplace first:
+`/plugin marketplace add fxsocket-com/FxSocket-MCP`, then
+`/plugin install fxsocket@fxsocket`.
+
+**Gemini CLI extension** (asks for the key once and keeps it in your
+system keychain, no Docker needed):
+
+```bash
+gemini extensions install https://github.com/fxsocket-com/FxSocket-MCP
+```
 
 **Claude Desktop** (Settings, Developer, Edit Config, then restart):
 
@@ -44,7 +63,7 @@ those. A full `fxs_live_...` key works too, but an agent has no use for one.
 }
 ```
 
-**Claude Code:**
+**Claude Code without the plugin:**
 
 ```bash
 claude mcp add fxsocket -e FXSOCKET_API_KEY=fxs_ro_... -- docker run -i --rm -e FXSOCKET_API_KEY fxsocket/mcp
@@ -151,8 +170,9 @@ docker build -t fxsocket/mcp:dev .
 The tests start the relay as a subprocess against a local stub server, so
 they cover the real stdio and HTTP paths.
 
-To release, bump `__version__` in `fxsocket_mcp.py`, then push a matching
-tag (`git tag v1.0.1 && git push --tags`). The `publish` workflow builds
+To release, bump `__version__` in `fxsocket_mcp.py` and the version in
+`server.json`, `.claude-plugin/plugin.json` and `gemini-extension.json`,
+then push a matching tag (`git tag v1.0.1 && git push --tags`). The `publish` workflow builds
 `linux/amd64` and `linux/arm64` and pushes `fxsocket/mcp:<version>`,
 `:<major>.<minor>` and `:latest`, and the `dockerhub-overview` workflow
 copies this README to the Docker Hub page.

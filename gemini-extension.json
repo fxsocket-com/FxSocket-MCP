@@ -1,0 +1,21 @@
+{
+  "name": "fxsocket",
+  "version": "1.0.3",
+  "description": "Read-only MT4, MT5 and cTrader accounts on FxSocket: balances, open positions, trade history with win rate and P/L, quotes, symbol specifications and candles.",
+  "settings": [
+    {
+      "name": "FxSocket API key",
+      "description": "A read-only key (fxs_ro_...) is enough. Create one at https://app.fxsocket.com/dashboard/api-key. Kept in the system keychain and sent only to mcp.fxsocket.com.",
+      "envVar": "FXSOCKET_API_KEY",
+      "sensitive": true
+    }
+  ],
+  "mcpServers": {
+    "fxsocket": {
+      "httpUrl": "https://mcp.fxsocket.com/mcp",
+      "headers": {
+        "X-API-Key": "${FXSOCKET_API_KEY}"
+      }
+    }
+  }
+}

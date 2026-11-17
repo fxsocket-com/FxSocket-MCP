@@ -1,0 +1,15 @@
+{
+  "name": "fxsocket",
+  "description": "FxSocket plugins for Claude Code",
+  "owner": {
+    "name": "FxSocket",
+    "url": "https://fxsocket.com"
+  },
+  "plugins": [
+    {
+      "name": "fxsocket",
+      "source": "./",
+      "description": "Read-only MT4, MT5 and cTrader accounts on FxSocket: balances, open positions, trade history, quotes and candles."
+    }
+  ]
+}
