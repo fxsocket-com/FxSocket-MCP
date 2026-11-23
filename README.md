@@ -120,6 +120,7 @@ the command with the file's path as the argument, keeping the same `env`.
 | `get_quotes` | Live bid/ask and spread for up to 20 symbols. |
 | `get_symbol_info` | Contract specification: digits, contract size, volume limits, swaps, sessions. |
 | `get_price_history` | OHLC candles for a symbol and timeframe. |
+| `get_journal` | cTrader accounts: connection events and every trade request with its outcome, newest first. |
 
 Amounts are in each account's deposit currency and are never summed across
 currencies. Times are broker server time.

@@ -169,5 +169,34 @@
         "optional": true
       }
     ]
+  },
+  {
+    "name": "get_journal",
+    "description": "The journal of one cTrader account, newest first: when it signed in at cTrader, became ready to trade, lost and regained its connection, and when its access was refreshed or refused; and every order, change and close the bridge carried out, with the request, the outcome (retcode, order, deal, position, or the error), the time it took, the caller's clientOrderId and User-Agent. Use it to answer why an account stopped trading or who sent a trade. The bridge keeps it in memory, at most 7 days and 1000 entries, and a bridge restart starts it afresh, so for the full record of closed trades use get_trade_history. cTrader accounts only.",
+    "arguments": [
+      {
+        "name": "account_id",
+        "type": "string",
+        "desc": "An account_id from list_accounts."
+      },
+      {
+        "name": "kind",
+        "type": "string",
+        "desc": "connection (the link to cTrader), trade (trade requests), or any.",
+        "optional": true
+      },
+      {
+        "name": "since",
+        "type": "string",
+        "desc": "Only entries at or after this moment (UTC), as a date or an ISO-8601 datetime.",
+        "optional": true
+      },
+      {
+        "name": "limit",
+        "type": "integer",
+        "desc": "At most this many entries, 1 to 200 (default 50).",
+        "optional": true
+      }
+    ]
   }
 ]
