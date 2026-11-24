@@ -3,6 +3,7 @@
 [![Docker Hub](https://img.shields.io/docker/v/fxsocket/mcp?sort=semver&label=docker%20hub)](https://hub.docker.com/r/fxsocket/mcp)
 [![CI](https://github.com/fxsocket-com/FxSocket-MCP/actions/workflows/ci.yml/badge.svg)](https://github.com/fxsocket-com/FxSocket-MCP/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![fxsocket-com/FxSocket-MCP MCP server](https://glama.ai/mcp/servers/fxsocket-com/FxSocket-MCP/badges/score.svg)](https://glama.ai/mcp/servers/fxsocket-com/FxSocket-MCP)
 
 Lets Claude, Gemini CLI, Cursor, VS Code and other MCP clients read your MetaTrader 4,
 MetaTrader 5 and cTrader accounts on [FxSocket](https://fxsocket.com): balances, open
